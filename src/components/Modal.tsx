@@ -83,15 +83,28 @@ function getProps(id: string) {
  */
 const getId = initId();
 
-export function toast(
-  content: (props: ReturnType<typeof getProps>) => ReactNode,
+type ContentProps<T> = Omit<ReturnType<typeof getProps>, "delete"> & {
+  delete: (data: T) => void;
+};
+
+export function toast<T>(
+  content: (props: ContentProps<T>) => ReactNode,
   style?: CSSProperties
 ) {
   const id = getId();
   const props = getProps(id);
-  dispatch((actions) => actions.addToast(id, content(props), style));
 
-  return props;
+  return new Promise<T>((resolve) => {
+    const deleteAndResolve = (data: T) => {
+      props.delete();
+      resolve(data);
+    };
+    const newProps = {
+      ...props,
+      delete: deleteAndResolve,
+    };
+    dispatch((actions) => actions.addToast(id, content(newProps), style));
+  });
 }
 
 /**

@@ -1,19 +1,19 @@
 "use client";
 
 import { toast } from "@/components/Modal";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function Home() {
-  const [lastToast, setLastToast] = useState<any>(null);
+  const actionRef = useRef<any>(null);
 
-  function open() {
-    const myToast = toast((props) => (
+  async function open() {
+    const myToast = await toast<{ data: number }>((props) => (
       <div>
         <h1>hello: {props.id}</h1>
         <button
           className="rounded-lg bg-slate-500 px-4 py-2 hover:bg-slate-600"
           onClick={() => {
-            myToast.delete();
+            props.delete({ data: 232 });
           }}
         >
           Close
@@ -21,7 +21,7 @@ export default function Home() {
       </div>
     ));
 
-    setLastToast(myToast);
+    console.log(myToast);
   }
 
   return (
@@ -34,7 +34,7 @@ export default function Home() {
         Open modal
       </button>
       <button
-        onClick={() => lastToast?.delete()}
+        onClick={() => actionRef.current?.delete({ data: 232 })}
         className="rounded-lg bg-slate-500 px-4 py-2 hover:bg-slate-600"
       >
         Close last modal
